@@ -1,0 +1,6 @@
+# ignore build
+build/
+# ignore bin
+bin/
+# google test
+tests/lib
