@@ -9,6 +9,9 @@ set(LOCAL_PROJECT_DESCRIPTION   "This is an exercise")
 #set(HEADERS xx.h)
 set(SOURCES_FILES src/main.cpp)
 
+add_subdirectory(tests)
+add_subdirectory(lib/googletest)
+
 #project setup
 project(${LOCAL_PROJECT_NAME}
         VERSION ${LOCAL_PROJECT_VERSION}
@@ -19,6 +22,5 @@ project(${LOCAL_PROJECT_NAME}
 # set bin folder for output
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-
 
 add_executable(bmw_run ${SOURCES_FILES})

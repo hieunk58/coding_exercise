@@ -3,4 +3,4 @@ build/
 # ignore bin
 bin/
 # google test
-tests/lib
+lib/
