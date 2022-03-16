@@ -6,3 +6,5 @@ bin/
 lib/
 # ignore OS generated files
 .DS_Store
+# ignore vsc
+.vscode

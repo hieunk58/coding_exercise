@@ -6,12 +6,6 @@ set(LOCAL_PROJECT_NAME          "#{bmw_project}")
 set(LOCAL_PROJECT_VERSION       "1.0")
 set(LOCAL_PROJECT_DESCRIPTION   "This is an exercise")
 
-#set(HEADERS xx.h)
-set(SOURCES_FILES src/main.cpp)
-
-add_subdirectory(tests)
-add_subdirectory(lib/googletest)
-
 #project setup
 project(${LOCAL_PROJECT_NAME}
         VERSION ${LOCAL_PROJECT_VERSION}
@@ -19,11 +13,25 @@ project(${LOCAL_PROJECT_NAME}
         LANGUAGES CXX
 )
 
+#set(HEADERS xx.h)
+set(SOURCES_FILES 
+    src/main.cpp
+    src/text_analyze.h
+    src/text_analyze.cpp)
+
+add_subdirectory(tests)
+add_subdirectory(lib/googletest)
+add_subdirectory(lib/pugixml)
+
 # set bin folder for output
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
+# exe file bmw_run
 add_executable(bmw_run ${SOURCES_FILES})
+
+# link pugixml
+target_link_libraries(bmw_run pugixml)
 
 # Doxygen
 option(BUILD_DOC "Buid Doxygen Documentation" ON)
