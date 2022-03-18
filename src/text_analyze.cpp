@@ -19,13 +19,91 @@
 
 #include "pugixml.hpp"
 
+#include <algorithm>
 #include <utility>
 #include <iostream>
 #include <fstream>
+#include <regex>
+#include <string>
+#include <iterator>
+#include <sstream>
+
+
+void TextAnalyze::ReadFromFile(const std::string& file_path) {
+    //1. read line by line
+    std::fstream file(file_path);
+    std::string line;
+    int line_cnt = 0;
+    while (std::getline(file, line)) {
+        line_cnt++;
+        FindSmileysPosition(line, line_cnt);
+        // ExtractWord(line);
+    }
+}
+
+void TextAnalyze::ExtractWord(std::string& line) {
+    // trim \t, \n
+    std::cout << "original: " << line << "\n";
+    //std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+)"), " ");
+    //std::cout << "before new line: " << trimmed_line << "\n";
+
+    auto filter = [&] (const char& c) {
+        return (!isalnum(c) || isspace(c));
+    };
+
+    // replace non alphabet characters by space
+    std::replace_if(line.begin(), line.end(), filter, ' ');
+    std::cout << "new line: " << line << "\n";
+    
+    std::stringstream str_stream(line);
+    std::string word;
+
+    while (str_stream >> word)
+    {
+        // excludes smiley from word list
+        if (!IsSmiley(word)) {
+            std::cout << "word not smiley: " << word << "\n";
+            word_list_.push_back(word);
+        }
+    }
+}
+
+bool TextAnalyze::IsSmiley(const std::string& str) {
+    bool res = false;
+    std::regex smiley_rgx(SMILEY_REGEX);
+    res = std::regex_match(str, smiley_rgx);
+    return res;
+}
+
+// bool TextAnalyze::IsAlphaChar(const std::string& str) {
+//     bool res = false;
+//     std::regex rgx ("[^a-zA-Z0-9 ]");
+//     res = std::regex_match(str, smiley_rgx);
+//     return res;
+// }
+
+void TextAnalyze::FindSmileysPosition(const std::string& line, const int& line_pos) {
+    std::regex smiley_reg(SMILEY_REGEX);
+    auto words_begin = std::sregex_iterator(line.begin(), line.end(), smiley_reg);
+    auto words_end = std::sregex_iterator();
+
+    for (std::sregex_iterator i = words_begin; i != words_end; ++i)
+    {
+        std::smatch match = *i;
+        // column count from 1, use match.position(0) + 1
+        auto elem = std::make_tuple(match.str(0), line_pos, match.position(0) + 1);
+
+        smiley_list_.push_back(elem);
+    } 
+}
 
 void TextAnalyze::FindTopKUsedWords(int k) {
-    std::unordered_map<std::string, size_t> word_map;
+    if(word_list_.empty()) {
+        std::cout << "Error, there is no text!\n";
+        return;
+    }
 
+    std::unordered_map<std::string, size_t> word_map;
     for (auto& word : word_list_) {
         // TODO: exclude emoji characters
         ++word_map[word];
@@ -38,7 +116,8 @@ void TextAnalyze::FindTopKUsedWords(int k) {
             return x.second == y.second ? x.first < y.first : x.second > y.second;
     };
 
-    std::priority_queue<std::pair<std::string, int>, std::vector<std::pair<std::string, int>>,
+    std::priority_queue<std::pair<std::string, int>, 
+        std::vector<std::pair<std::string, int>>,
         decltype(cmp)> pri_queue(cmp);
     
     for (auto& word : word_map) {
@@ -50,7 +129,6 @@ void TextAnalyze::FindTopKUsedWords(int k) {
         }
     }
 
-    
     while (!pri_queue.empty()) {
       
         std::string word = pri_queue.top().first;
@@ -60,16 +138,22 @@ void TextAnalyze::FindTopKUsedWords(int k) {
         pri_queue.pop();
     }
 
-    // sort top k used words by desc
+    // sort top k used words by frequency desc
     std::reverse(top_word_list_.begin(), top_word_list_.end());
 }
 
 void TextAnalyze::PrintResultToConsole() {
     std::cout << "Smiley position\n";
     // TODO
-
+    for (const auto& i : smiley_list_)
+    {
+        std::cout << std::get<0>(i) 
+            << ", Ln " << std::get<1>(i) 
+            << ", Col " << std::get<2>(i) << "\n";
+    }
+    
     std::cout << "Top used words\n";
-    for (auto& i : top_word_list_) {
+    for (const auto& i : top_word_list_) {
         std::cout << i << "\n";
     }
 }
