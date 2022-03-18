@@ -37,34 +37,28 @@ void TextAnalyze::ReadFromFile(const std::string& file_path) {
     while (std::getline(file, line)) {
         line_cnt++;
         FindSmileysPosition(line, line_cnt);
-        // ExtractWord(line);
+        ExtractWord(line);
     }
 }
 
 void TextAnalyze::ExtractWord(std::string& line) {
-    // trim \t, \n
-    std::cout << "original: " << line << "\n";
-    //std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+)"), " ");
-    //std::cout << "before new line: " << trimmed_line << "\n";
+    // trim whitespaces
+    std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+)"), " ");
 
+    // filter non alphabet characters
     auto filter = [&] (const char& c) {
-        return (!isalnum(c) || isspace(c));
+        return !isalnum(c);
     };
 
-    // replace non alphabet characters by space
+    // remove non alphabetical characters (includes smiley)
     std::replace_if(line.begin(), line.end(), filter, ' ');
-    std::cout << "new line: " << line << "\n";
     
     std::stringstream str_stream(line);
     std::string word;
 
     while (str_stream >> word)
     {
-        // excludes smiley from word list
-        if (!IsSmiley(word)) {
-            std::cout << "word not smiley: " << word << "\n";
-            word_list_.push_back(word);
-        }
+        word_list_.push_back(word);
     }
 }
 
@@ -74,13 +68,6 @@ bool TextAnalyze::IsSmiley(const std::string& str) {
     res = std::regex_match(str, smiley_rgx);
     return res;
 }
-
-// bool TextAnalyze::IsAlphaChar(const std::string& str) {
-//     bool res = false;
-//     std::regex rgx ("[^a-zA-Z0-9 ]");
-//     res = std::regex_match(str, smiley_rgx);
-//     return res;
-// }
 
 void TextAnalyze::FindSmileysPosition(const std::string& line, const int& line_pos) {
     std::regex smiley_reg(SMILEY_REGEX);
@@ -98,7 +85,7 @@ void TextAnalyze::FindSmileysPosition(const std::string& line, const int& line_p
 }
 
 void TextAnalyze::FindTopKUsedWords(int k) {
-    if(word_list_.empty()) {
+    if (word_list_.empty()) {
         std::cout << "Error, there is no text!\n";
         return;
     }
@@ -130,11 +117,8 @@ void TextAnalyze::FindTopKUsedWords(int k) {
     }
 
     while (!pri_queue.empty()) {
-      
-        std::string word = pri_queue.top().first;
-        std::string freq = std::to_string(pri_queue.top().second);
-        std::string tmp = word + ", " + freq;
-        top_word_list_.push_back(tmp);
+        top_word_list_.push_back({pri_queue.top().first, 
+            pri_queue.top().second});
         pri_queue.pop();
     }
 
@@ -144,7 +128,6 @@ void TextAnalyze::FindTopKUsedWords(int k) {
 
 void TextAnalyze::PrintResultToConsole() {
     std::cout << "Smiley position\n";
-    // TODO
     for (const auto& i : smiley_list_)
     {
         std::cout << std::get<0>(i) 
@@ -152,22 +135,32 @@ void TextAnalyze::PrintResultToConsole() {
             << ", Col " << std::get<2>(i) << "\n";
     }
     
-    std::cout << "Top used words\n";
+    std::cout << "\nTop used words\n";
     for (const auto& i : top_word_list_) {
-        std::cout << i << "\n";
+        std::cout << i.first << ", freq " << i.second << "\n";
     }
 }
 
 void TextAnalyze::PrintResultToTextFile() {
-    std::ofstream res("analyze_text.txt");
+    std::ofstream res("analyze_text_result.txt");
 
-    for (auto& i : top_word_list_) {
-        res << i << "\n";
+    // smiley position
+    res << "Smiley position\n";
+    for (const auto& i : smiley_list_)
+    {
+        res << std::get<0>(i) 
+            << ", Ln " << std::get<1>(i) 
+            << ", Col " << std::get<2>(i) << "\n";
+    }
+
+    // top k used words
+    res << "\nTop used words\n";
+    for (const auto& i : top_word_list_) {
+        res << i.first << ", freq " << i.second << "\n";
     }
 }
 
 void TextAnalyze::PrintResultToXmlFile() {
-    std::cout << "\nStarting print result to xml file\n";
     pugi::xml_document doc;
     // generate xml declaration
     auto descr = doc.append_child(pugi::node_declaration);
@@ -175,20 +168,41 @@ void TextAnalyze::PrintResultToXmlFile() {
 
     // root node
     auto root = doc.append_child("TextAnalyze");
-    // top k used words first
-    // TODO: smiley pos
+    // smiley positions
+    auto smiley_node = root.append_child("SmileyPosition");
+    smiley_node.append_attribute("description") = "Smiley position";
+
+    // <smiley>
+    //   <id>
+    //   <line>
+    //   <column>
+    // </smiley>
+    for (const auto& smiley : smiley_list_) {
+        pugi::xml_node node = root.append_child("smiley");
+
+        pugi::xml_node child_node = node.append_child("id");
+        child_node.append_child(pugi::node_pcdata).set_value(std::get<0>(smiley).c_str());
+
+        child_node = node.append_child("line");
+        child_node.append_child(pugi::node_pcdata).set_value(std::to_string(std::get<1>(smiley)).c_str());
+
+        child_node = node.append_child("column");
+        child_node.append_child(pugi::node_pcdata).set_value(std::to_string(std::get<2>(smiley)).c_str());
+    }
+
+    // top k used words
+    // <word freq="x">xxx</word>
     auto used_word_node =  root.append_child("TopUsedWords");
     used_word_node.append_attribute("description") = "Top used words";
+
     for (const auto& word : top_word_list_) {
         // add children nodes below root
         pugi::xml_node node = root.append_child("word");
-        // std::cout << word << "\n";
-        node.append_attribute("val") = word.c_str();
+        node.append_child(pugi::node_pcdata).set_value(word.first.c_str());
+        node.append_attribute("freq") = word.second;
     }
 
-    doc.save_file("analyze_text.xml");
-    std::cout << "\nDone print result to xml file\n";
-
+    doc.save_file("analyze_text_result.xml");
 }
 
 // 1. starting position of smiley

@@ -8,7 +8,7 @@ int main(){
     TextAnalyze test;
     test.ReadFromFile("input.txt");
     test.FindTopKUsedWords(4);
-    test.PrintResult(OutputOption::kConsoleOnly);
+    test.PrintResult(OutputOption::kConsoleTextXml);
 
     return 0;
 }

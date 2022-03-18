@@ -30,7 +30,7 @@ class TextAnalyze {
     public:
         std::vector<std::string> word_list_;
 
-        std::vector<std::string> top_word_list_;
+        std::vector<std::pair<std::string, size_t> > top_word_list_;
         std::vector<std::tuple<std::string, size_t, size_t> > smiley_list_;
     public:
         void ReadFromFile(const std::string& file_path);
