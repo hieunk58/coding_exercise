@@ -43,7 +43,7 @@ void TextAnalyze::ReadFromFile(const std::string& file_path) {
 
 void TextAnalyze::ExtractWord(std::string& line) {
     // trim whitespaces
-    std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+)"), " ");
+    std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+|\\t|\\n)"), " ");
 
     // filter non alphabet characters
     auto filter = [&] (const char& c) {
@@ -51,9 +51,9 @@ void TextAnalyze::ExtractWord(std::string& line) {
     };
 
     // remove non alphabetical characters (includes smiley)
-    std::replace_if(line.begin(), line.end(), filter, ' ');
+    std::replace_if(trimmed_line.begin(), trimmed_line.end(), filter, ' ');
     
-    std::stringstream str_stream(line);
+    std::stringstream str_stream(trimmed_line);
     std::string word;
 
     while (str_stream >> word)
