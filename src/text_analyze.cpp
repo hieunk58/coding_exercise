@@ -15,6 +15,7 @@
  * limitations under the License.
  *
  */
+
 #include "text_analyze.h"
 
 #include "pugixml.hpp"
@@ -27,7 +28,6 @@
 #include <string>
 #include <iterator>
 #include <sstream>
-
 
 void TextAnalyze::ReadFromFile(const std::string& file_path) {
     //1. read line by line

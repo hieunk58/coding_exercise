@@ -15,16 +15,15 @@
  * limitations under the License.
  *
  */
+
 #ifndef BMW_PROJECT_TEXT_ANALYZE_H_
 #define BMW_PROJECT_TEXT_ANALYZE_H_
-
-#include "output_option.h"
 
 #include <vector>
 #include <queue>
 #include <unordered_map>
 
-#define SMILEY_REGEX (R"(\:\-?[\[\]\{\}\(\)\<\>]*)")
+#define SMILEY_REGEX (R"(\:\-?[\[\]\{\}\(\)\<\>])")
 
 class TextAnalyze {
     public:
@@ -32,6 +31,18 @@ class TextAnalyze {
 
         std::vector<std::pair<std::string, size_t> > top_word_list_;
         std::vector<std::tuple<std::string, size_t, size_t> > smiley_list_;
+
+    public:
+        enum class OutputOption {
+            kConsoleOnly,
+            kTextOnly,
+            kXmlOnly,
+            kTextXml,
+            kConsoleXml,
+            kConsoleText,
+            kConsoleTextXml
+        };
+
     public:
         void ReadFromFile(const std::string& file_path);
         void FindSmileysPosition(const std::string& line, const int& line_pos);
@@ -41,8 +52,7 @@ class TextAnalyze {
         void PrintResultToConsole();
         void PrintResultToTextFile();
         void PrintResultToXmlFile();
-        void PrintResult(OutputOption opt);
-        
+        void PrintResult(OutputOption opt);     
 };
 
 #endif // BMW_PROJECT_TEXT_ANALYZE_H_
