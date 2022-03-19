@@ -18,8 +18,6 @@
 
 #include "text_analyze.h"
 
-#include "pugixml.hpp"
-
 #include <algorithm>
 #include <utility>
 #include <iostream>
@@ -28,6 +26,8 @@
 #include <string>
 #include <iterator>
 #include <sstream>
+
+#include "pugixml.hpp"
 
 void TextAnalyze::ReadFromFile(const std::string& file_path) {
     //1. read line by line
@@ -43,7 +43,8 @@ void TextAnalyze::ReadFromFile(const std::string& file_path) {
 
 void TextAnalyze::ExtractWord(std::string& line) {
     // trim whitespaces
-    std::string trimmed_line = std::regex_replace(line, std::regex(R"(\s+|\\t|\\n)"), " ");
+    std::string trimmed_line = std::regex_replace(line, 
+        std::regex(R"(\s+|\\t|\\n)"), " ");
 
     // filter non alphabet characters
     auto filter = [&] (const char& c) {
@@ -62,23 +63,19 @@ void TextAnalyze::ExtractWord(std::string& line) {
     }
 }
 
-bool TextAnalyze::IsSmiley(const std::string& str) {
-    bool res = false;
-    std::regex smiley_rgx(SMILEY_REGEX);
-    res = std::regex_match(str, smiley_rgx);
-    return res;
-}
-
-void TextAnalyze::FindSmileysPosition(const std::string& line, const int& line_pos) {
+void TextAnalyze::FindSmileysPosition(const std::string& line, 
+    const int& line_pos) {
     std::regex smiley_reg(SMILEY_REGEX);
-    auto words_begin = std::sregex_iterator(line.begin(), line.end(), smiley_reg);
+    auto words_begin = std::sregex_iterator(line.begin(), 
+        line.end(), smiley_reg);
     auto words_end = std::sregex_iterator();
 
     for (std::sregex_iterator i = words_begin; i != words_end; ++i)
     {
         std::smatch match = *i;
         // column count from 1, use match.position(0) + 1
-        auto elem = std::make_tuple(match.str(0), line_pos, match.position(0) + 1);
+        auto elem = std::make_tuple(match.str(0), line_pos, 
+            match.position(0) + 1);
 
         smiley_list_.push_back(elem);
     } 
@@ -100,7 +97,8 @@ void TextAnalyze::FindTopKUsedWords(int k) {
         const std::pair<std::string, int>& y) {
             // if words have same frequency, sort by alphabetical
             // otherwise sort by frequency desc
-            return x.second == y.second ? x.first < y.first : x.second > y.second;
+            return x.second == y.second ? x.first < y.first 
+                : x.second > y.second;
     };
 
     std::priority_queue<std::pair<std::string, int>, 
@@ -144,16 +142,13 @@ void TextAnalyze::PrintResultToConsole() {
 void TextAnalyze::PrintResultToTextFile() {
     std::ofstream res("analyze_text_result.txt");
 
-    // smiley position
     res << "Smiley position\n";
-    for (const auto& i : smiley_list_)
-    {
+    for (const auto& i : smiley_list_) {
         res << std::get<0>(i) 
             << ", Ln " << std::get<1>(i) 
             << ", Col " << std::get<2>(i) << "\n";
     }
 
-    // top k used words
     res << "\nTop used words\n";
     for (const auto& i : top_word_list_) {
         res << i.first << ", freq " << i.second << "\n";
@@ -181,13 +176,16 @@ void TextAnalyze::PrintResultToXmlFile() {
         pugi::xml_node node = root.append_child("smiley");
 
         pugi::xml_node child_node = node.append_child("id");
-        child_node.append_child(pugi::node_pcdata).set_value(std::get<0>(smiley).c_str());
+        child_node.append_child(pugi::node_pcdata)
+            .set_value(std::get<0>(smiley).c_str());
 
         child_node = node.append_child("line");
-        child_node.append_child(pugi::node_pcdata).set_value(std::to_string(std::get<1>(smiley)).c_str());
+        child_node.append_child(pugi::node_pcdata)
+            .set_value(std::to_string(std::get<1>(smiley)).c_str());
 
         child_node = node.append_child("column");
-        child_node.append_child(pugi::node_pcdata).set_value(std::to_string(std::get<2>(smiley)).c_str());
+        child_node.append_child(pugi::node_pcdata)
+            .set_value(std::to_string(std::get<2>(smiley)).c_str());
     }
 
     // top k used words

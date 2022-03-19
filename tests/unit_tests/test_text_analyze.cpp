@@ -16,10 +16,18 @@
  *
  */
 
-#include "gtest/gtest.h"
+// #include "../../src/text_analyze.h"
 
-int main(int argc, char** argv)
-{
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}
+// #include "gtest/gtest.h"
+
+// // Demonstrate some basic assertions.
+// TEST(TextAnalyzeTest, ReadFromFile) {
+//     TextAnalyze txt;
+//     std::vector<std::string> words;
+
+//     const std::string file_path = "";
+
+//     txt.ReadFromFile(file_path);
+
+//     EXPECT_EQ(0, words.size());
+// }
