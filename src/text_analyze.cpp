@@ -82,14 +82,8 @@ void TextAnalyze::FindSmileysPosition(const std::string& line,
 }
 
 void TextAnalyze::FindTopKUsedWords(int k) {
-    if (word_list_.empty()) {
-        std::cout << "Error, there is no text!\n";
-        return;
-    }
-
     std::unordered_map<std::string, size_t> word_map;
     for (auto& word : word_list_) {
-        // TODO: exclude emoji characters
         ++word_map[word];
     }
 

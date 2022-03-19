@@ -23,8 +23,8 @@
 int main(){
     TextAnalyze test;
     test.ReadFromFile("input.txt");
-    test.FindTopKUsedWords(4);
-    test.PrintResult(TextAnalyze::OutputOption::kConsoleTextXml);
+    test.FindTopKUsedWords(10);
+    test.PrintResult(TextAnalyze::OutputOption::kConsoleOnly);
 
     return 0;
 }

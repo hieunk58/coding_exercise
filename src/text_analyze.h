@@ -33,13 +33,13 @@ class TextAnalyze {
     public:
         /**
          * @brief A vector of strings
-         * Contains words after reading from file
+         * contains words after reading from file
          */
         std::vector<std::string> word_list_;
 
         /**
          * @brief A vector of pairs
-         * Contains top used words 
+         * contains top used words 
          * along with the number of frequency of that word
          * a pair format (word, frequency)
          */
@@ -47,7 +47,7 @@ class TextAnalyze {
 
         /**
          * @brief A vector of tuples
-         * Contains smiley characters and their position in the text
+         * contains smiley characters and their position in the text
          * a tuple format (character, line, column)
          */
         std::vector<std::tuple<std::string, size_t, size_t> > smiley_list_;

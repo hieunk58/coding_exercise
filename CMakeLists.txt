@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 
 # project variables
@@ -13,25 +13,10 @@ project(${LOCAL_PROJECT_NAME}
         LANGUAGES CXX
 )
 
-#set(HEADERS xx.h)
-set(SOURCES_FILES 
-    src/main.cpp
-    src/text_analyze.h
-    src/text_analyze.cpp)
-
+add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(lib/googletest)
 add_subdirectory(lib/pugixml)
-
-# set bin folder for output
-set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
-
-# exe file bmw_run
-add_executable(bmw_run ${SOURCES_FILES})
-
-# link pugixml
-target_link_libraries(bmw_run pugixml)
 
 # Doxygen
 option(BUILD_DOC "Buid Doxygen Documentation" ON)
