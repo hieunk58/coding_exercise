@@ -22,9 +22,31 @@
 
 int main(){
     TextAnalyze test;
-    test.ReadFromFile("input.txt");
+    std::string file_name;
+    // default print result to console
+    int opt = 0;
+    std::cout << "\nEnter file name: \n";
+    std::cout << "(Example: /Users/example_user/Documents/input.txt)\n\n";
+    std::getline(std::cin, file_name);
+
+    // ReadFromFile will read each line from file 
+    // and call FindSmileyPosition
+    test.ReadFromFile(file_name);
+    // Find top 10 used words
     test.FindTopKUsedWords(10);
-    test.PrintResult(TextAnalyze::OutputOption::kConsoleOnly);
+    do {
+        std::cout << "\nPlease select an option from 0 to 6 to print out the result\n";
+        std::cout << "0: Print result to console only\n"
+                    "1: Print result to text file only\n"
+                    "2: Print result to xml file only\n"
+                    "3: Print result to text and xml file\n"
+                    "4: Print result to console and xml file\n"
+                    "5: Print result to console and text file\n"
+                    "6: Print result to console, text and xml file\n\n";
+        std::cin >> opt;        
+    } while (opt < 0 || opt > 6);
+
+    test.PrintResult(TextAnalyze::OutputOption(opt));
 
     return 0;
 }
